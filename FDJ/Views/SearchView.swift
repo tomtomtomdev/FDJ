@@ -5,9 +5,11 @@ struct SearchView: View {
     @State private var searchViewModel = SearchViewModel()
     @State private var oddsListViewModel: OddsListViewModel
     @Environment(\.dismiss) private var dismiss
+    private let favoritesService: FavoritesServiceProtocol
 
-    init(viewModel: OddsListViewModel) {
+    init(viewModel: OddsListViewModel, favoritesService: FavoritesServiceProtocol) {
         self._oddsListViewModel = State(initialValue: viewModel)
+        self.favoritesService = favoritesService
     }
 
     var body: some View {
@@ -105,7 +107,18 @@ struct SearchView: View {
     private var searchResults: some View {
         List(searchViewModel.filteredOdds) { event in
             NavigationLink(destination: OddsDetailView(event: event)) {
-                OddsEventRow(event: event)
+                OddsEventRow(
+                    event: event,
+                    onFavoriteToggle: { event in
+                        Task {
+                            if await favoritesService.isFavorite(event) {
+                                await favoritesService.removeFavorite(event)
+                            } else {
+                                await favoritesService.addFavorite(event)
+                            }
+                        }
+                    }
+                )
             }
         }
         .listStyle(PlainListStyle())
@@ -130,9 +143,66 @@ extension View {
 
 // MARK: - Preview
 #Preview {
-    let mockRepository = MockOddsRepository()
+    let mockRepository = MockOddsRepositoryForSearch()
     let viewModel = OddsListViewModel(repository: mockRepository)
+    let favoritesService = MockFavoritesServiceForSearch()
 
-    return SearchView(viewModel: viewModel)
+    SearchView(viewModel: viewModel, favoritesService: favoritesService)
         .preferredColorScheme(.dark)
+}
+
+// Mock dependencies for previews
+actor MockOddsRepositoryForSearch: OddsRepositoryProtocol {
+    func fetchOdds() async throws -> [OddsEvent] {
+        return [
+            OddsEvent(
+                id: "1",
+                sport: "basketball",
+                homeTeam: "Los Angeles Lakers",
+                awayTeam: "Golden State Warriors",
+                commenceTime: Date().addingTimeInterval(3600),
+                bookmakers: [
+                    Bookmaker(
+                        name: "DraftKings",
+                        outcomes: [
+                            Outcome(name: "Lakers", price: 1.85),
+                            Outcome(name: "Warriors", price: 1.95)
+                        ]
+                    )
+                ]
+            )
+        ]
+    }
+
+    func refreshOdds() async throws -> [OddsEvent] {
+        return try await fetchOdds()
+    }
+
+    func getCachedOdds() async throws -> [OddsEvent]? {
+        return nil
+    }
+}
+
+actor MockFavoritesServiceForSearch: FavoritesServiceProtocol {
+    private var favorites: Set<String> = []
+
+    func addFavorite(_ event: OddsEvent) async {
+        favorites.insert(event.id)
+    }
+
+    func removeFavorite(_ event: OddsEvent) async {
+        favorites.remove(event.id)
+    }
+
+    func isFavorite(_ event: OddsEvent) async -> Bool {
+        return favorites.contains(event.id)
+    }
+
+    func getAllFavorites() async -> [OddsEvent] {
+        return []
+    }
+
+    func clearAll() async {
+        favorites.removeAll()
+    }
 }

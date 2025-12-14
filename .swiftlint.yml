@@ -1,0 +1,48 @@
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+
+excluded:
+  - Carthage
+  - Pods
+  - DerivedData
+  - .build
+
+line_length:
+  warning: 120
+  error: 150
+
+function_body_length:
+  warning: 50
+  error: 100
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 400
+  error: 600
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+custom_rules:
+  no_print_in_production:
+    name: "No print statements in production"
+    regex: '(?m-s)\bprint\s*\('
+    match_kinds: statement
+    message: "Use proper logging instead of print"
+    severity: warning
+
+  test_function_naming:
+    name: "Test function naming convention"
+    regex: '(?m-s)^(\s*)func test([A-Z][^\(]*)\(\)'
+    message: "Test functions should start with lowercase"
+    severity: warning

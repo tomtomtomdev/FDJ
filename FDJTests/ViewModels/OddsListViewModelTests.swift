@@ -20,7 +20,7 @@ struct OddsListViewModelTests {
     @Test("OddsListViewModel should load odds successfully")
     func testLoadOddsSuccess() async {
         // Given: A view model with mock repository
-        let mockRepository = MockOddsRepository()
+        let mockRepository = MockOddsRepositoryForListTests()
         let viewModel = OddsListViewModel(repository: mockRepository)
 
         // When: Loading odds
@@ -158,7 +158,7 @@ struct OddsListViewModelTests {
 
 // MARK: - Mock Repositories for Testing
 
-actor MockOddsRepository: OddsRepositoryProtocol {
+actor MockOddsRepositoryForListTests: OddsRepositoryProtocol {
     private let shouldFail: Bool
     var refreshCallCount = 0
 

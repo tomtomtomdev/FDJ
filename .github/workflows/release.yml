@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Select Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    - name: Build Archive
+      run: |
+        xcodebuild \
+          -scheme FDJ \
+          -destination generic/platform=iOS \
+          -configuration Release \
+          -derivedDataPath ./DerivedData \
+          -archivePath ./DerivedData/Build/FDJ.xcarchive \
+          archive
+
+    - name: Export IPA
+      run: |
+        xcodebuild \
+          -exportArchive \
+          -archivePath ./DerivedData/Build/FDJ.xcarchive \
+          -exportPath ./DerivedData/Build \
+          -exportOptionsPlist ExportOptions.plist
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./DerivedData/Build/FDJ.ipa
+        asset_name: FDJ.ipa
+        asset_content_type: application/octet-stream

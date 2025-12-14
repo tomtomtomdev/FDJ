@@ -3,6 +3,12 @@ import SwiftUI
 /// Row component displaying a single odds event
 struct OddsEventRow: View {
     let event: OddsEvent
+    let onFavoriteToggle: (OddsEvent) -> Void
+
+    init(event: OddsEvent, onFavoriteToggle: @escaping (OddsEvent) -> Void = { _ in }) {
+        self.event = event
+        self.onFavoriteToggle = onFavoriteToggle
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -45,15 +51,26 @@ struct OddsEventRow: View {
 
             Spacer()
 
-            if event.isLive {
-                Text("LIVE")
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.red)
-                    .clipShape(Capsule())
+            HStack(spacing: 12) {
+                if event.isLive {
+                    Text("LIVE")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                }
+
+                Button(action: {
+                    onFavoriteToggle(event)
+                }) {
+                    Image(systemName: "heart")
+                        .foregroundColor(.accentColor)
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

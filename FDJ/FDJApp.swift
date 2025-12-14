@@ -11,7 +11,7 @@ import SwiftUI
 struct FDJApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabContainerView()
         }
     }
 }

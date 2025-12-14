@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a betting outcome with associated odds
-struct Outcome: Codable, Sendable, Identifiable, Equatable {
+struct Outcome: Codable, Sendable, Identifiable, Equatable, Hashable {
     let id = UUID()
     let name: String
     let price: Double

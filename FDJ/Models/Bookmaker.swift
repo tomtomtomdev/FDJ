@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a bookmaker with their odds offerings
-struct Bookmaker: Codable, Sendable, Identifiable, Equatable {
+struct Bookmaker: Codable, Sendable, Identifiable, Equatable, Hashable {
     let id = UUID()
     let name: String
     let outcomes: [Outcome]

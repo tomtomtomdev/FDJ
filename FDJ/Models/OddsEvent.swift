@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a sports event with betting odds
-struct OddsEvent: Codable, Sendable, Identifiable, Equatable {
+struct OddsEvent: Codable, Sendable, Identifiable, Equatable, Hashable {
     let id: String
     let sport: String
     let homeTeam: String

@@ -4,7 +4,7 @@ import Observation
 /// ViewModel for managing favorite odds events
 @Observable
 @MainActor
-final class FavoritesViewModel {
+final class FavoritesViewModel: ObservableObject {
     // MARK: - Published Properties
     private(set) var favoriteEvents: [OddsEvent] = []
     private(set) var isLoading = false
